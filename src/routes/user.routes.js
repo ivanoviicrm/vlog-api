@@ -7,6 +7,7 @@ router
   .post(
     userMiddleware.validateRegisterBody,
     userMiddleware.isUserAlreadyRegister,
+    userMiddleware.encryptPassword,
     userController.register
   )
 

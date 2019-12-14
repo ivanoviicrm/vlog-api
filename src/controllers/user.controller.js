@@ -1,15 +1,20 @@
 const mongoose = require('mongoose'); // Sin mongoose falla
 const userModel = require('../models/user.model');
 
+/**
+ * Función que guarda un usuario en la DB.
+ * Por seguridad es necesario pasar por middlewares del archivo 'user.middleware.js' primero.
+ * Estos middlewares son usados en el archivo 'user.rutes.js'.
+ */
 exports.register =  async (req, res) => {
-  // Crea el modelo a guardar en la DB.
+  const encryptedPassword = req.encryptedPassword;
+
   const user = new userModel({
     name: req.body.name,
     email: req.body.email,
-    password: req.body.password
+    password: encryptedPassword
   });
 
-  // Guarda el usuario en la DB
   if (await user.save()) {
     res.status(200).json({
       status: 'success',
@@ -18,6 +23,10 @@ exports.register =  async (req, res) => {
   }
 } 
 
+/**
+ * Función que loguea a un usuario.
+ * En construcción...
+ */
 exports.login = (req, res) => {
   res.status(200).json({
     status: 'success',

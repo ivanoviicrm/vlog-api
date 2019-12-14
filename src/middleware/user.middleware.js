@@ -1,6 +1,6 @@
-const express = require('express');
 const userValidations = require('../validations/user.validations');
 const userModel = require('../models/user.model');
+const bcrypt = require('bcrypt');
 
 /**
  * Funcion middleware que comprueba que el body del request coincida con las validaciones de Joi.
@@ -30,5 +30,16 @@ exports.isUserAlreadyRegister = async (req, res, next) => {
       message: 'email already exists'
     });
   }
+  next();
+}
+
+/**
+ * Función middleware que encripta la contraseña del usuario que recibo del body.
+ * Usar después del middleware 'isUserAlreadyRegister' en el archivo user.router.js antes del
+ * middleware 'userController.register'
+ */
+exports.encryptPassword = async (req, res, next) => {
+  const salt = await bcrypt.genSalt(10);
+  req.encryptedPassword = await bcrypt.hash(req.body.password, salt);
   next();
 }
