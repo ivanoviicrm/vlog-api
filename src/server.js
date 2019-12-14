@@ -5,6 +5,7 @@ const mongooseService = require('./services/mongoose.service')
 
 dotenv.config();
 const app = express();
+app.use(express.json());
 mongooseService.getConnection();
 routesService.useAllRoutes(app);
 

@@ -1,5 +1,3 @@
-const express = require('express');
-
 exports.getAllPost = (req, res) => {
   res
     .status(200) 
