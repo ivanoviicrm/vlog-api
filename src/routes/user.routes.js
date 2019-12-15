@@ -13,6 +13,11 @@ router
 
 router
   .route('/users/login')
-  .post(userController.login)
+  .post(
+    userMiddleware.validateLoginBody,
+    userMiddleware.validateEmailInLogin,
+    userMiddleware.validatePasswordInLogin,
+    userController.login
+  )
 
 module.exports = router;
