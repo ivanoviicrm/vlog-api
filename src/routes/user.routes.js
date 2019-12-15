@@ -6,7 +6,7 @@ router
   .route('/users/register')
   .post(
     userMiddleware.validateRegisterBody,
-    userMiddleware.isUserAlreadyRegister,
+    userMiddleware.isUserAlreadyRegistered,
     userMiddleware.encryptPassword,
     userController.register
   )

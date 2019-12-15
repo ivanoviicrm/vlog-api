@@ -22,7 +22,7 @@ exports.validateRegisterBody = (req, res, next) => {
  * Usar después del middleware 'validateRegisterBody' en el archivo user.router.js antes del
  * middleware 'userController.register'
  */
-exports.isUserAlreadyRegister = async (req, res, next) => {
+exports.isUserAlreadyRegistered = async (req, res, next) => {
   // Comprueba si el email ya existe | usuario ya registrado
   if(await userModel.findOne({ email: req.body.email })) {
     return res.status(400).json({
