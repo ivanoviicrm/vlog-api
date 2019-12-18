@@ -1,8 +1,8 @@
-require('dotenv').config();
-const jwt = require('jsonwebtoken');
-const userValidations = require('../validations/user.validations');
-const userModel = require('../models/user.model');
-const bcrypt = require('bcrypt');
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
+const userValidations = require("../validations/user.validations");
+const userModel = require("../models/user.model");
+const bcrypt = require("bcrypt");
 
 // Registro
 
@@ -11,10 +11,10 @@ const bcrypt = require('bcrypt');
  * Llamar a esta función en el archivo user.router.js antes del middleware 'userController.register'
  */
 exports.validateRegisterBody = (req, res, next) => {
-  const validation = userValidations.register.validate(req.body)
+  const validation = userValidations.register.validate(req.body);
   if (validation.error) {
     return res.status(400).json({
-      status: 'fail',
+      status: "fail",
       message: validation.error.details[0].message
     });
   }
@@ -28,14 +28,14 @@ exports.validateRegisterBody = (req, res, next) => {
  */
 exports.isUserAlreadyRegistered = async (req, res, next) => {
   // Comprueba si el email ya existe | usuario ya registrado
-  if(await userModel.findOne({ email: req.body.email })) {
+  if (await userModel.findOne({ email: req.body.email })) {
     return res.status(400).json({
-      status: 'fail',
-      message: 'email already exists'
+      status: "fail",
+      message: "email already exists"
     });
   }
   next();
-}
+};
 
 /**
  * Función middleware que encripta la contraseña del usuario que recibo del body.
@@ -46,7 +46,7 @@ exports.encryptPassword = async (req, res, next) => {
   const salt = await bcrypt.genSalt(10);
   req.encryptedPassword = await bcrypt.hash(req.body.password, salt);
   next();
-}
+};
 
 // Login
 
@@ -54,15 +54,15 @@ exports.encryptPassword = async (req, res, next) => {
  * Función de middleware que comprueba que el body de una petición de login sea el correcto.
  */
 exports.validateLoginBody = (req, res, next) => {
-  const validation = userValidations.login.validate(req.body)
+  const validation = userValidations.login.validate(req.body);
   if (validation.error) {
     return res.status(400).json({
-      status: 'fail',
+      status: "fail",
       message: validation.error.details[0].message
     });
   }
   next();
-}
+};
 
 /**
  * Función que comprueba que los datos proporcionados por el usuario (en este caso email) son los
@@ -72,27 +72,30 @@ exports.validateEmailInLogin = async (req, res, next) => {
   req.user = await userModel.findOne({ email: req.body.email });
   if (!req.user) {
     return res.status(400).json({
-      status: 'fail',
-      message: 'Ivalid email'
+      status: "fail",
+      message: "Ivalid email"
     });
   }
   next();
-}
+};
 
 /**
  * Función que comprueba que los datos proporcionados por el usuario (en este caso password) son los
  * correctos para llevar a cabo el logueo. Usar después de la función de middleware 'validateLoginBody'.
  */
 exports.validatePasswordInLogin = async (req, res, next) => {
-  const validPassword = await bcrypt.compare(req.body.password, req.user.password);
+  const validPassword = await bcrypt.compare(
+    req.body.password,
+    req.user.password
+  );
   if (!validPassword) {
     return res.status(400).json({
-      status: 'fail',
-      message: 'Ivalid password'
+      status: "fail",
+      message: "Ivalid password"
     });
   }
   next();
-}
+};
 
 // TOKEN
 
@@ -105,8 +108,8 @@ exports.validateToken = (req, res, next) => {
   const token = req.header(process.env.TOKEN_HEADER_NAME);
   if (!token) {
     return res.status(401).json({
-      status: 'fail',
-      message: 'Access denied'
+      status: "fail",
+      message: "Access denied"
     });
   }
 
@@ -114,8 +117,7 @@ exports.validateToken = (req, res, next) => {
     const verified = jwt.verify(token, process.env.TOKEN_SECRET);
     req.user = verified;
     next();
-
   } catch (error) {
-    return res.status(400).send('Invalid Token');
+    return res.status(400).send("Invalid Token");
   }
-}
+};

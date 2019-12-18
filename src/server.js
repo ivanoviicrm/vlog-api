@@ -1,7 +1,7 @@
-require('dotenv').config();
-const express = require('express');
-const routesService = require('./services/routes.service');
-const mongooseService = require('./services/mongoose.service')
+require("dotenv").config();
+const express = require("express");
+const routesService = require("./services/routes.service");
+const mongooseService = require("./services/mongoose.service");
 
 const app = express();
 app.use(express.json());
