@@ -28,10 +28,18 @@ exports.validateRegisterBody = (req, res, next) => {
  */
 exports.isUserAlreadyRegistered = async (req, res, next) => {
   // Comprueba si el email ya existe | usuario ya registrado
-  if (await userModel.findOne({ email: req.body.email })) {
-    return res.status(400).json({
+  try {
+    const user = await userModel.findOne({ email: req.body.email });
+    if (user) {
+      return res.status(400).json({
+        status: "fail",
+        message: "email already exists"
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
       status: "fail",
-      message: "email already exists"
+      message: "Internal error - Cannot check if email already exists"
     });
   }
   next();
@@ -43,8 +51,15 @@ exports.isUserAlreadyRegistered = async (req, res, next) => {
  * middleware 'userController.register'
  */
 exports.encryptPassword = async (req, res, next) => {
-  const salt = await bcrypt.genSalt(10);
-  req.encryptedPassword = await bcrypt.hash(req.body.password, salt);
+  try {
+    const salt = await bcrypt.genSalt(10);
+    req.encryptedPassword = await bcrypt.hash(req.body.password, salt);
+  } catch (error) {
+    return res.status(500).json({
+      status: "fail",
+      message: "Internal error - Could not encrypt password."
+    });
+  }
   next();
 };
 
@@ -69,11 +84,19 @@ exports.validateLoginBody = (req, res, next) => {
  * correctos para llevar a cabo el logueo. Usar después de la función de middleware 'validateLoginBody'.
  */
 exports.validateEmailInLogin = async (req, res, next) => {
-  req.user = await userModel.findOne({ email: req.body.email });
-  if (!req.user) {
-    return res.status(400).json({
+  try {
+    req.user = await userModel.findOne({ email: req.body.email });
+    if (!req.user) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Ivalid email"
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
       status: "fail",
-      message: "Ivalid email"
+      message:
+        "Internal error - Cannot check if there was an user with that email."
     });
   }
   next();
@@ -84,14 +107,21 @@ exports.validateEmailInLogin = async (req, res, next) => {
  * correctos para llevar a cabo el logueo. Usar después de la función de middleware 'validateLoginBody'.
  */
 exports.validatePasswordInLogin = async (req, res, next) => {
-  const validPassword = await bcrypt.compare(
-    req.body.password,
-    req.user.password
-  );
-  if (!validPassword) {
-    return res.status(400).json({
+  try {
+    const validPassword = await bcrypt.compare(
+      req.body.password,
+      req.user.password
+    );
+    if (!validPassword) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Ivalid password"
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
       status: "fail",
-      message: "Ivalid password"
+      message: "Internal error - Cannot compare between passwords"
     });
   }
   next();
@@ -116,8 +146,8 @@ exports.validateToken = (req, res, next) => {
   try {
     const verified = jwt.verify(token, process.env.TOKEN_SECRET);
     req.user = verified;
-    next();
   } catch (error) {
     return res.status(400).send("Invalid Token");
   }
+  next();
 };
